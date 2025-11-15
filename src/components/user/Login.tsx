@@ -4,17 +4,59 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Sparkles, Chrome } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function Login() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/ai-analysis');
+    setLoading(true);
+    setErrorMsg('');
+
+    // 1️⃣ Sign in user
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (authError) {
+      setLoading(false);
+      setErrorMsg(authError.message);
+      return;
+    }
+
+    const user = authData.user;
+    if (!user) {
+      setLoading(false);
+      setErrorMsg("Login failed: No user returned.");
+      return;
+    }
+
+    // 2️⃣ Get role from profiles table
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    if (profileError || !profile) {
+      setLoading(false);
+      setErrorMsg("Your user profile was not found.");
+      return;
+    }
+
+    // 3️⃣ Redirect based on role
+    if (profile.role === 'admin') {
+      navigate('/admin-dashboard');
+    } else {
+      navigate('/ai-analysis'); // your user homepage
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -29,6 +71,11 @@ export default function Login() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg shadow-purple-100/50 p-8">
+
+          {errorMsg && (
+            <p className="text-red-500 text-sm mb-4 text-center">{errorMsg}</p>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -56,8 +103,12 @@ export default function Login() {
               />
             </div>
 
-            <Button type="submit" className="w-full rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600">
-              Login
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+            >
+              {loading ? "Logging in..." : "Login"}
             </Button>
 
             <div className="relative my-6">
