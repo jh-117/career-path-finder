@@ -61,19 +61,10 @@ export default function AIAnalysis() {
         </div>
 
         {/* Visual Analytics */}
-        <div className="grid lg:grid-cols-2 gap-8">
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-purple-100/50 p-8 border border-white">
-            <h2 className="mb-6">Skills Overview</h2>
-            <div className="h-80 flex items-center justify-center">
-              <RadarChart />
-            </div>
-          </div>
-
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-purple-100/50 p-8 border border-white">
-            <h2 className="mb-6">Skill Connections</h2>
-            <div className="h-80 flex items-center justify-center">
-              <SkillMap />
-            </div>
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-purple-100/50 p-8 border border-white">
+          <h2 className="mb-6">Skills Overview</h2>
+          <div className="h-96 flex items-center justify-center">
+            <RadarChart />
           </div>
         </div>
 
