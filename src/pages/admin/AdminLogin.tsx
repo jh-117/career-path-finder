@@ -11,7 +11,7 @@ const AdminLogin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { adminSignIn } = useAuth(); // replace with your actual admin sign-in function
+  const { supabase } = useAuth(); // get Supabase client from context
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -19,13 +19,29 @@ const AdminLogin: React.FC = () => {
     setError('');
     setLoading(true);
 
-    const { error } = await adminSignIn(email, password); // admin authentication
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError(error.message || 'Failed to login');
+      if (error) {
+        setError(error.message || 'Failed to login');
+        setLoading(false);
+        return;
+      }
+
+      // Optional: Check if user is admin
+      if (data.user?.email !== 'admin@company.com') {
+        setError('You are not authorized as admin');
+        setLoading(false);
+        return;
+      }
+
+      navigate('/admin/add-role'); // redirect after successful admin login
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
       setLoading(false);
-    } else {
-      navigate('/admin/add-role'); // redirect on successful admin login
     }
   };
 
