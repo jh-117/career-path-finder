@@ -1,21 +1,32 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Shield } from 'lucide-react';
 
-export default function AdminLogin({ setRole }: { setRole: (role: 'user' | 'admin') => void }) {
+const AdminLogin: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { adminSignIn } = useAuth(); // replace with your actual admin sign-in function
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setRole('admin');
-    navigate('/admin/add-role');
+    setError('');
+    setLoading(true);
+
+    const { error } = await adminSignIn(email, password); // admin authentication
+
+    if (error) {
+      setError(error.message || 'Failed to login');
+      setLoading(false);
+    } else {
+      navigate('/admin/add-role'); // redirect on successful admin login
+    }
   };
 
   return (
@@ -30,6 +41,7 @@ export default function AdminLogin({ setRole }: { setRole: (role: 'user' | 'admi
         </div>
 
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-purple-100/50 p-8 border border-white">
+          {error && <div className="text-red-500 mb-4">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="email">Admin Email</Label>
@@ -37,8 +49,8 @@ export default function AdminLogin({ setRole }: { setRole: (role: 'user' | 'admi
                 id="email"
                 type="email"
                 placeholder="admin@company.com"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 className="rounded-xl border-slate-200 h-12"
               />
@@ -50,8 +62,8 @@ export default function AdminLogin({ setRole }: { setRole: (role: 'user' | 'admi
                 id="password"
                 type="password"
                 placeholder="••••••••"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 className="rounded-xl border-slate-200 h-12"
               />
@@ -60,9 +72,10 @@ export default function AdminLogin({ setRole }: { setRole: (role: 'user' | 'admi
             <div className="pt-4">
               <Button
                 type="submit"
+                disabled={loading}
                 className="w-full h-12 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg shadow-indigo-500/30"
               >
-                Login to Admin Portal
+                {loading ? 'Logging in...' : 'Login to Admin Portal'}
               </Button>
             </div>
           </form>
@@ -79,4 +92,6 @@ export default function AdminLogin({ setRole }: { setRole: (role: 'user' | 'admi
       </div>
     </div>
   );
-}
+};
+
+export default AdminLogin;
