@@ -8,6 +8,19 @@ A modern, clean, interactive career development web app with User and Admin role
 - **Style**: Soft, futuristic, minimal aesthetic
 - **Layout**: Card-based (no tables), clean sections, dynamic visuals
 - **Components**: Rounded corners (12-16px), soft shadows, lots of whitespace
+- **Navigation**: Collapsible sidebar with active page highlighting
+
+## 🧭 Navigation Panel
+
+The app includes a **collapsible navigation sidebar** with:
+- **Toggle button**: Collapse/expand the sidebar (top right corner)
+- **User Portal links**: All user-facing pages (purple/blue highlight when active)
+- **Admin Portal links**: All admin pages (indigo/purple highlight when active)
+- **Active page indicator**: Gradient background shows current page
+- **Hover effects**: Smooth transitions on all navigation items
+- **Responsive width**: 18rem expanded, 5rem collapsed
+
+Click the toggle button (◀/▶) to collapse the navigation and maximize content space.
 
 ## 🚀 Getting Started
 
