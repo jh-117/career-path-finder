@@ -1,20 +1,19 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { CheckCircle2, User, Briefcase, Mail, Building2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 export default function UserOnboarding() {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState<any>(null);
+  const { user } = useAuth();
 
-  useEffect(() => {
-    const data = localStorage.getItem('userData');
-    if (data) {
-      setUserData(JSON.parse(data));
-    }
-  }, []);
-
-  if (!userData) return null;
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-slate-500">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
@@ -23,13 +22,13 @@ export default function UserOnboarding() {
           <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 mb-6">
             <CheckCircle2 className="w-12 h-12 text-green-600" strokeWidth={1.5} />
           </div>
-          <h1 className="mb-3">Welcome, {userData.name}!</h1>
+          <h1 className="mb-3">Welcome, {user.full_name || 'there'}!</h1>
           <p className="text-slate-500">Your account has been created successfully</p>
         </div>
 
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-purple-100/50 p-10 border border-white">
           <h2 className="mb-8 text-center">Your Profile</h2>
-          
+
           <div className="grid md:grid-cols-2 gap-5 mb-10">
             <div className="group hover:scale-[1.02] transition-transform">
               <div className="flex items-start gap-4 p-6 rounded-2xl bg-gradient-to-br from-purple-50/80 to-blue-50/80 border border-purple-100/50">
@@ -38,7 +37,7 @@ export default function UserOnboarding() {
                 </div>
                 <div>
                   <p className="text-sm text-slate-500 mb-1">Full Name</p>
-                  <p className="text-slate-900">{userData.name}</p>
+                  <p className="text-slate-900">{user.full_name || 'Not provided'}</p>
                 </div>
               </div>
             </div>
@@ -50,7 +49,7 @@ export default function UserOnboarding() {
                 </div>
                 <div>
                   <p className="text-sm text-slate-500 mb-1">Department</p>
-                  <p className="text-slate-900">{userData.department}</p>
+                  <p className="text-slate-900">{user.department || 'Not provided'}</p>
                 </div>
               </div>
             </div>
@@ -62,7 +61,7 @@ export default function UserOnboarding() {
                 </div>
                 <div>
                   <p className="text-sm text-slate-500 mb-1">Current Role</p>
-                  <p className="text-slate-900">{userData.currentRole}</p>
+                  <p className="text-slate-900">{user.job_title || 'Not provided'}</p>
                 </div>
               </div>
             </div>
@@ -74,7 +73,7 @@ export default function UserOnboarding() {
                 </div>
                 <div>
                   <p className="text-sm text-slate-500 mb-1">Email</p>
-                  <p className="text-slate-900">{userData.email}</p>
+                  <p className="text-slate-900 break-words">{user.email}</p>
                 </div>
               </div>
             </div>
