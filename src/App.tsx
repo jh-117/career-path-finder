@@ -26,8 +26,9 @@ export default function App() {
       <Router>
         <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-purple-50">
           <Navigation />
-          
-          <Routes>
+
+          <div className="lg:ml-[280px] transition-all duration-300">
+            <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/preview_page.html" element={<Navigate to="/login" replace />} />
@@ -114,6 +115,7 @@ export default function App() {
             {/* Catch all */}
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
+          </div>
         </div>
       </Router>
     </AuthProvider>
