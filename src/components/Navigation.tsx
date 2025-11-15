@@ -34,16 +34,16 @@ const Navigation: React.FC = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/user/login');
+    navigate('/login');
   };
 
   // User navigation items
   const userNavItems = [
-    { path: '/user/onboarding', label: 'Onboarding', icon: UserCircle },
-    { path: '/user/strength-discovery', label: 'Strength Discovery', icon: BarChart3 },
-    { path: '/user/ai-analysis', label: 'AI Analysis', icon: FileText },
-    { path: '/user/role/1', label: 'Role Details', icon: Briefcase },
-    { path: '/user/download-report', label: 'Download Report', icon: Download },
+    { path: '/onboarding', label: 'Onboarding', icon: UserCircle },
+    { path: '/strength-discovery', label: 'Strength Discovery', icon: BarChart3 },
+    { path: '/ai-analysis', label: 'AI Analysis', icon: FileText },
+    { path: '/role/1', label: 'Role Details', icon: Briefcase },
+    { path: '/download-report', label: 'Download Report', icon: Download },
   ];
 
   // Admin navigation items
@@ -57,7 +57,7 @@ const Navigation: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
 
   // Don't show navigation on login/signup pages
-  const publicPages = ['/user/login', '/user/signup', '/admin/login'];
+  const publicPages = ['/login', '/signup', '/admin/login'];
   if (publicPages.includes(location.pathname)) {
     return null;
   }
