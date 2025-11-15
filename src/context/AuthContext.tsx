@@ -23,9 +23,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Fetch user profile from database
   const fetchUserProfile = async (authUserId: string) => {
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')  // CHANGED: from 'users' to 'profiles'
       .select('*')
-      .eq('auth_user_id', authUserId)
+      .eq('id', authUserId)  // CHANGED: from 'auth_user_id' to 'id'
       .single();
 
     if (error) {
@@ -77,9 +77,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Create user profile in database
       if (authData.user) {
         const { error: profileError } = await supabase
-          .from('users')
+          .from('profiles')  // CHANGED: from 'users' to 'profiles'
           .insert({
-            auth_user_id: authData.user.id,
+            id: authData.user.id,  // CHANGED: from 'auth_user_id' to 'id'
             email: email,
             full_name: fullName,
             role: 'user',
@@ -146,7 +146,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return { error: { message: 'No user logged in' } };
 
     const { error } = await supabase
-      .from('users')
+      .from('profiles')  // CHANGED: from 'users' to 'profiles'
       .update(updates)
       .eq('id', user.id);
 
