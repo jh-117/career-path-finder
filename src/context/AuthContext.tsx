@@ -1,26 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase, User, SignUpMetadata } from '../lib/supabaseClient';
 import { Session } from '@supabase/supabase-js';
-
-// User interface matching your database
-interface User {
-  id: string;
-  email: string;
-  full_name?: string;
-  department?: string;
-  user_role?: string;
-  role: string;
-  onboarding_completed: boolean;
-  created_at: string;
-  updated_at?: string;
-}
-
-// Metadata for signup
-interface SignUpMetadata {
-  full_name: string;
-  department?: string;
-  user_role?: string;
-}
 
 interface AuthContextType {
   user: User | null;
@@ -151,6 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (updateError) {
           console.error('Error updating profile:', updateError);
+          // Don't fail signup if profile update fails
         }
       }
 
