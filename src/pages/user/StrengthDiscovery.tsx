@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/button';
 import TagInput from '../../components/TagInput';
 import FileUpload from '../../components/FileUpload';
 import { Code, Users, Target, Zap, Upload } from 'lucide-react';
+import { supabase } from '../../lib/supabaseClient';
 
 export default function StrengthDiscovery() {
   const navigate = useNavigate();
@@ -12,17 +13,101 @@ export default function StrengthDiscovery() {
   const [careerInterests, setCareerInterests] = useState<string[]>([]);
   const [workStyle, setWorkStyle] = useState('');
   const [files, setFiles] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('strengthData', JSON.stringify({
-      technicalSkills,
-      softSkills,
-      careerInterests,
-      workStyle,
-      filesCount: files.length
-    }));
-    navigate('/ai-analysis');
+    setIsSubmitting(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
+      const { data: strengthProfile, error: profileError } = await supabase
+        .from('strength_profiles')
+        .insert({
+          user_id: user.id,
+          work_style: workStyle,
+          completed: true
+        })
+        .select()
+        .single();
+
+      if (profileError) throw profileError;
+
+      const technicalSkillsData = technicalSkills.map((skill, index) => ({
+        strength_profile_id: strengthProfile.id,
+        skill_name: skill,
+        order_index: index + 1
+      }));
+
+      const softSkillsData = softSkills.map((skill, index) => ({
+        strength_profile_id: strengthProfile.id,
+        skill_name: skill,
+        order_index: index + 1
+      }));
+
+      const careerInterestsData = careerInterests.map((interest, index) => ({
+        strength_profile_id: strengthProfile.id,
+        interest_name: interest,
+        order_index: index + 1
+      }));
+
+      const [techError, softError, careerError] = await Promise.all([
+        technicalSkillsData.length > 0
+          ? supabase.from('technical_skills').insert(technicalSkillsData)
+          : Promise.resolve({ error: null }),
+        softSkillsData.length > 0
+          ? supabase.from('soft_skills').insert(softSkillsData)
+          : Promise.resolve({ error: null }),
+        careerInterestsData.length > 0
+          ? supabase.from('career_interests').insert(careerInterestsData)
+          : Promise.resolve({ error: null })
+      ]);
+
+      if (techError.error) throw techError.error;
+      if (softError.error) throw softError.error;
+      if (careerError.error) throw careerError.error;
+
+      for (const file of files) {
+        const filePath = `${user.id}/${strengthProfile.id}/${file.name}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('strength-documents')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { error: docError } = await supabase
+          .from('uploaded_documents')
+          .insert({
+            strength_profile_id: strengthProfile.id,
+            file_name: file.name,
+            file_path: filePath,
+            file_size: file.size,
+            file_type: file.type
+          });
+
+        if (docError) throw docError;
+      }
+
+      localStorage.setItem('strengthData', JSON.stringify({
+        technicalSkills,
+        softSkills,
+        careerInterests,
+        workStyle,
+        filesCount: files.length
+      }));
+
+      navigate('/ai-analysis');
+    } catch (error) {
+      console.error('Error saving strength discovery data:', error);
+      alert('Failed to save your data. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const workStyleOptions = [
@@ -148,9 +233,10 @@ export default function StrengthDiscovery() {
           <div className="flex justify-center pt-8">
             <Button
               type="submit"
-              className="h-12 px-12 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg shadow-purple-500/30"
+              disabled={isSubmitting}
+              className="h-12 px-12 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Generate My AI Analysis
+              {isSubmitting ? 'Saving...' : 'Generate My AI Analysis'}
             </Button>
           </div>
         </form>
