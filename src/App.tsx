@@ -26,8 +26,11 @@ export default function App() {
       <Router>
         <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-purple-50">
           <Navigation />
-
-          <div className="lg:ml-[280px] transition-all duration-300">
+<div className="min-h-screen px-4 pt-20 lg:pt-10 lg:ml-[280px] transition-all duration-300">
+  <Routes>
+    {/* pages */}
+  </Routes>
+</div>
             <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Navigate to="/login" replace />} />
