@@ -6,7 +6,7 @@ import FileUpload from '../../components/FileUpload';
 import { Code, Users, Target, Zap, Upload } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 
-useEffect(() => {
+useEffect(()z => {
   console.log('=== Supabase Connection Test ===');
   console.log('URL:', import.meta.env.VITE_SUPABASE_URL);
   console.log('Key exists:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
