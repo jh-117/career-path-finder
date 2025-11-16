@@ -19,12 +19,15 @@ export default function StrengthDiscovery() {
     e.preventDefault();
     setIsSubmitting(true);
 
+    let strengthProfileId: string | null = null;
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         throw new Error('User not authenticated');
       }
 
+      // Save strength profile
       const { data: strengthProfile, error: profileError } = await supabase
         .from('strength_profiles')
         .insert({
@@ -36,7 +39,9 @@ export default function StrengthDiscovery() {
         .single();
 
       if (profileError) throw profileError;
+      strengthProfileId = strengthProfile.id;
 
+      // Save skills and interests
       const technicalSkillsData = technicalSkills.map((skill, index) => ({
         strength_profile_id: strengthProfile.id,
         skill_name: skill,
@@ -71,6 +76,7 @@ export default function StrengthDiscovery() {
       if (softError.error) throw softError.error;
       if (careerError.error) throw careerError.error;
 
+      // Upload files
       for (const file of files) {
         const filePath = `${user.id}/${strengthProfile.id}/${file.name}`;
 
@@ -93,23 +99,7 @@ export default function StrengthDiscovery() {
         if (docError) throw docError;
       }
 
-      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-strengths`;
-      const { data: { session } } = await supabase.auth.getSession();
-
-      const analysisResponse = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session?.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!analysisResponse.ok) {
-        throw new Error('Failed to generate AI analysis');
-      }
-
-      const analysisData = await analysisResponse.json();
-
+      // Save to localStorage before API call
       localStorage.setItem('strengthData', JSON.stringify({
         technicalSkills,
         softSkills,
@@ -118,12 +108,72 @@ export default function StrengthDiscovery() {
         filesCount: files.length
       }));
 
-      localStorage.setItem('latestAnalysisId', analysisData.analysis.id);
+      console.log('Data saved successfully. Calling AI analysis...');
 
-      navigate('/ai-analysis');
+      // Now call AI analysis - this is separate from data saving
+      try {
+        const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-strengths`;
+        const { data: { session } } = await supabase.auth.getSession();
+
+        console.log('Calling API:', apiUrl);
+
+        const analysisResponse = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session?.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            strengthProfileId: strengthProfile.id
+          })
+        });
+
+        console.log('Analysis response status:', analysisResponse.status);
+
+        if (!analysisResponse.ok) {
+          const errorText = await analysisResponse.text();
+          console.error('AI Analysis Error:', errorText);
+          throw new Error(`Failed to generate AI analysis: ${analysisResponse.status}`);
+        }
+
+        const analysisData = await analysisResponse.json();
+        console.log('Analysis data:', analysisData);
+
+        if (analysisData && analysisData.analysis && analysisData.analysis.id) {
+          localStorage.setItem('latestAnalysisId', analysisData.analysis.id);
+        }
+
+        // Navigate to results page
+        navigate('/ai-analysis');
+
+      } catch (analysisError) {
+        console.error('AI Analysis Error:', analysisError);
+        
+        // Data is saved, but analysis failed
+        // Give user option to retry or view profile
+        const retry = confirm(
+          'Your data has been saved successfully, but AI analysis failed to generate. Would you like to retry the analysis?'
+        );
+        
+        if (retry) {
+          // Retry the analysis
+          window.location.reload();
+        } else {
+          // Navigate anyway - they can generate analysis later
+          navigate('/ai-analysis');
+        }
+      }
+
     } catch (error) {
       console.error('Error saving strength discovery data:', error);
+      
+      // This is an actual data save error
       alert('Failed to save your data. Please try again.');
+      
+      // If we created a profile but failed later, consider cleaning it up
+      if (strengthProfileId) {
+        console.log('Partial data may have been saved. Profile ID:', strengthProfileId);
+      }
     } finally {
       setIsSubmitting(false);
     }
