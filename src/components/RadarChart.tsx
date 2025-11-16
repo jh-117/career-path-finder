@@ -1,44 +1,98 @@
 import { useState } from 'react';
 import { Radar, RadarChart as RechartsRadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from 'recharts';
 
-const data = [
-  { 
-    skill: 'Technical', 
-    fullSkill: 'Technical Skills',
-    value: 90,
-    description: 'Proficiency in programming, tools, and technical problem-solving'
-  },
-  { 
-    skill: 'Communication', 
-    fullSkill: 'Communication Skills',
-    value: 85,
-    description: 'Ability to convey ideas clearly and collaborate effectively'
-  },
-  { 
-    skill: 'Leadership', 
-    fullSkill: 'Leadership Skills',
-    value: 75,
-    description: 'Capacity to guide teams and make strategic decisions'
-  },
-  { 
-    skill: 'Problem Solving', 
-    fullSkill: 'Problem Solving',
-    value: 88,
-    description: 'Analytical thinking and creative solution development'
-  },
-  { 
-    skill: 'Creativity', 
-    fullSkill: 'Creativity & Innovation',
-    value: 82,
-    description: 'Original thinking and ability to generate new ideas'
-  },
-  { 
-    skill: 'Analytics', 
-    fullSkill: 'Data Analytics',
-    value: 78,
-    description: 'Data interpretation and insight generation capabilities'
-  },
-];
+interface RadarChartProps {
+  data?: {
+    technical: number;
+    communication: number;
+    leadership: number;
+    creativity: number;
+    problemSolving: number;
+    adaptability: number;
+  };
+}
+
+const getChartData = (skillsData?: RadarChartProps['data']) => {
+  if (!skillsData) {
+    return [
+      {
+        skill: 'Technical',
+        fullSkill: 'Technical Skills',
+        value: 90,
+        description: 'Proficiency in programming, tools, and technical problem-solving'
+      },
+      {
+        skill: 'Communication',
+        fullSkill: 'Communication Skills',
+        value: 85,
+        description: 'Ability to convey ideas clearly and collaborate effectively'
+      },
+      {
+        skill: 'Leadership',
+        fullSkill: 'Leadership Skills',
+        value: 75,
+        description: 'Capacity to guide teams and make strategic decisions'
+      },
+      {
+        skill: 'Problem Solving',
+        fullSkill: 'Problem Solving',
+        value: 88,
+        description: 'Analytical thinking and creative solution development'
+      },
+      {
+        skill: 'Creativity',
+        fullSkill: 'Creativity & Innovation',
+        value: 82,
+        description: 'Original thinking and ability to generate new ideas'
+      },
+      {
+        skill: 'Adaptability',
+        fullSkill: 'Adaptability',
+        value: 78,
+        description: 'Flexibility and ability to adjust to changing circumstances'
+      },
+    ];
+  }
+
+  return [
+    {
+      skill: 'Technical',
+      fullSkill: 'Technical Skills',
+      value: skillsData.technical,
+      description: 'Proficiency in programming, tools, and technical problem-solving'
+    },
+    {
+      skill: 'Communication',
+      fullSkill: 'Communication Skills',
+      value: skillsData.communication,
+      description: 'Ability to convey ideas clearly and collaborate effectively'
+    },
+    {
+      skill: 'Leadership',
+      fullSkill: 'Leadership Skills',
+      value: skillsData.leadership,
+      description: 'Capacity to guide teams and make strategic decisions'
+    },
+    {
+      skill: 'Problem Solving',
+      fullSkill: 'Problem Solving',
+      value: skillsData.problemSolving,
+      description: 'Analytical thinking and creative solution development'
+    },
+    {
+      skill: 'Creativity',
+      fullSkill: 'Creativity & Innovation',
+      value: skillsData.creativity,
+      description: 'Original thinking and ability to generate new ideas'
+    },
+    {
+      skill: 'Adaptability',
+      fullSkill: 'Adaptability',
+      value: skillsData.adaptability,
+      description: 'Flexibility and ability to adjust to changing circumstances'
+    },
+  ];
+};
 
 // Custom tooltip component
 const CustomTooltip = ({ active, payload }: any) => {
@@ -63,11 +117,11 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 // Custom label component with better positioning
-const CustomLabel = ({ x, y, value, index }: any) => {
-  const skill = data[index].skill;
+const CustomLabel = ({ x, y, value, index, payload }: any) => {
+  const skill = payload.skill;
   
   // Calculate angle for better positioning
-  const angleStep = (2 * Math.PI) / data.length;
+  const angleStep = (2 * Math.PI) / 6;
   const angle = angleStep * index - Math.PI / 2;
   
   // Adjust distance from center based on position
@@ -95,12 +149,13 @@ const CustomLabel = ({ x, y, value, index }: any) => {
   );
 };
 
-export default function RadarChart() {
+export default function RadarChart({ data: skillsData }: RadarChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const data = getChartData(skillsData);
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <RechartsRadarChart 
+      <RechartsRadarChart
         data={data}
         onMouseMove={(state: any) => {
           if (state.isTooltipActive) {

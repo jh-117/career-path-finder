@@ -93,6 +93,23 @@ export default function StrengthDiscovery() {
         if (docError) throw docError;
       }
 
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-strengths`;
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const analysisResponse = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!analysisResponse.ok) {
+        throw new Error('Failed to generate AI analysis');
+      }
+
+      const analysisData = await analysisResponse.json();
+
       localStorage.setItem('strengthData', JSON.stringify({
         technicalSkills,
         softSkills,
@@ -100,6 +117,8 @@ export default function StrengthDiscovery() {
         workStyle,
         filesCount: files.length
       }));
+
+      localStorage.setItem('latestAnalysisId', analysisData.analysis.id);
 
       navigate('/ai-analysis');
     } catch (error) {

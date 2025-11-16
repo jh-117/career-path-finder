@@ -1,39 +1,93 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import RadarChart from '../../components/RadarChart';
 import SkillMap from '../../components/SkillMap';
 import RoleCard from '../../components/RoleCard';
-import { Info, Download, ArrowLeft } from 'lucide-react';
+import { Info, Download, ArrowLeft, Loader2 } from 'lucide-react';
+import { supabase } from '../../lib/supabaseClient';
 
-const mockRoles = [
-  {
-    id: '1',
-    title: 'Senior Frontend Developer',
-    matchScore: 92,
-    skills: ['React', 'TypeScript', 'UI/UX', 'Problem Solving'],
-    department: 'Engineering',
-    deadline: '2025-12-01'
-  },
-  {
-    id: '2',
-    title: 'Product Manager',
-    matchScore: 85,
-    skills: ['Leadership', 'Communication', 'Strategy', 'Analytics'],
-    department: 'Product',
-    deadline: '2025-11-28'
-  },
-  {
-    id: '3',
-    title: 'UX Designer',
-    matchScore: 78,
-    skills: ['Design', 'User Research', 'Creativity', 'Collaboration'],
-    department: 'Design',
-    deadline: '2025-12-05'
-  },
-];
+interface AnalysisData {
+  personalityPattern: string;
+  topAdvantage: string;
+  naturalTendencies: string;
+  skillsRadar: {
+    technical: number;
+    communication: number;
+    leadership: number;
+    creativity: number;
+    problemSolving: number;
+    adaptability: number;
+  };
+  recommendedRoles: Array<{
+    title: string;
+    matchScore: number;
+    skills: string[];
+    department: string;
+    reasoning: string;
+  }>;
+}
 
 export default function AIAnalysis() {
   const navigate = useNavigate();
+  const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAnalysis();
+  }, []);
+
+  const fetchAnalysis = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('ai_analyses')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setAnalysis(data.analysis_data);
+      }
+    } catch (error) {
+      console.error('Error fetching analysis:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen py-16 px-6 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
+          <p className="text-slate-600">Loading your analysis...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!analysis) {
+    return (
+      <div className="min-h-screen py-16 px-6 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-slate-600 mb-4">No analysis found. Please complete the strength discovery first.</p>
+          <Button onClick={() => navigate('/strength-discovery')}>
+            Go to Strength Discovery
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-16 px-6">
@@ -64,7 +118,7 @@ export default function AIAnalysis() {
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-purple-100/50 p-8 border border-white">
           <h2 className="mb-6">Skills Overview</h2>
           <div className="h-96 flex items-center justify-center">
-            <RadarChart />
+            <RadarChart data={analysis.skillsRadar} />
           </div>
         </div>
 
@@ -75,21 +129,21 @@ export default function AIAnalysis() {
             <div className="p-6 rounded-2xl bg-gradient-to-br from-purple-50/80 to-blue-50/80 border border-purple-100/50">
               <h3 className="mb-3 text-purple-700">Personality Pattern</h3>
               <p className="text-slate-600 leading-relaxed">
-                Based on the Big Five framework, you exhibit high openness to experience and conscientiousness. You're naturally curious, organized, and detail-oriented—traits that make you excellent at both creative problem-solving and systematic execution.
+                {analysis.personalityPattern}
               </p>
             </div>
 
             <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-50/80 to-indigo-50/80 border border-blue-100/50">
               <h3 className="mb-3 text-blue-700">Your Top Advantage</h3>
               <p className="text-slate-600 leading-relaxed">
-                Your unique combination of technical expertise and strong communication skills sets you apart. You can bridge the gap between technical teams and stakeholders, making you valuable in cross-functional roles.
+                {analysis.topAdvantage}
               </p>
             </div>
 
             <div className="p-6 rounded-2xl bg-gradient-to-br from-pink-50/80 to-purple-50/80 border border-pink-100/50">
               <h3 className="mb-3 text-pink-700">Natural Tendencies</h3>
               <p className="text-slate-600 leading-relaxed">
-                You thrive in environments that offer both structure and autonomy. You prefer meaningful work with clear goals but appreciate the freedom to innovate within those parameters. Collaborative projects energize you, especially when you can contribute both ideas and execution.
+                {analysis.naturalTendencies}
               </p>
             </div>
           </div>
@@ -99,11 +153,18 @@ export default function AIAnalysis() {
         <div>
           <h2 className="mb-8">Recommended Career Paths</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockRoles.map((role) => (
+            {analysis.recommendedRoles.map((role, index) => (
               <RoleCard
-                key={role.id}
-                role={role}
-                onClick={() => navigate(`/role/${role.id}`)}
+                key={index}
+                role={{
+                  id: String(index + 1),
+                  title: role.title,
+                  matchScore: role.matchScore,
+                  skills: role.skills,
+                  department: role.department,
+                  deadline: ''
+                }}
+                onClick={() => navigate(`/role/${index + 1}`)}
               />
             ))}
           </div>
