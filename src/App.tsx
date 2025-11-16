@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Navigation from './components/Navigation';
@@ -18,15 +18,18 @@ import ManageRoles from './pages/admin/ManageRoles';
 import AdminRoleDetail from './pages/admin/AdminRoleDetail';
 import ApplicantDetail from './pages/admin/ApplicantDetail';
 
-export default function App() {
-  return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-purple-50">
-          <Navigation />
+function AppContent() {
+  const location = useLocation();
 
-          <div className="lg:ml-[280px] transition-all duration-300">
-            <Routes>
+  const hideNavRoutes = ['/signup', '/login', '/admin/login'];
+  const shouldShowNav = !hideNavRoutes.includes(location.pathname);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-purple-50">
+      {shouldShowNav && <Navigation />}
+
+      <div className={shouldShowNav ? 'lg:ml-[280px] transition-all duration-300' : ''}>
+        <Routes>
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/preview_page.html" element={<Navigate to="/login" replace />} />
               <Route path="/signup" element={<UserSignUp />} />
@@ -111,6 +114,14 @@ export default function App() {
             </Routes>
           </div>
         </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppContent />
       </Router>
     </AuthProvider>
   );
