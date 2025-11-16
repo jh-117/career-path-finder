@@ -9,15 +9,17 @@ export default function UserOnboarding() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 pt-20 lg:pt-6 lg:ml-[280px]">
+      <div className="min-h-screen flex items-center justify-center">
         <p className="text-slate-500">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-3xl">
+    // Wrapper with proper spacing for sidebar + top navbar
+    <div className="min-h-screen pt-20 px-4 lg:pt-10 lg:ml-[280px]">
+      <div className="max-w-3xl mx-auto">
+        {/* Welcome Section */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 mb-6">
             <CheckCircle2 className="w-12 h-12 text-green-600" strokeWidth={1.5} />
@@ -26,10 +28,12 @@ export default function UserOnboarding() {
           <p className="text-slate-500">Your account has been created successfully</p>
         </div>
 
+        {/* Profile Cards Section */}
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-purple-100/50 p-10 border border-white">
           <h2 className="mb-8 text-center">Your Profile</h2>
 
           <div className="grid md:grid-cols-2 gap-5 mb-10">
+            {/* Full Name */}
             <div className="group hover:scale-[1.02] transition-transform">
               <div className="flex items-start gap-4 p-6 rounded-2xl bg-gradient-to-br from-purple-50/80 to-blue-50/80 border border-purple-100/50">
                 <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0">
@@ -42,6 +46,7 @@ export default function UserOnboarding() {
               </div>
             </div>
 
+            {/* Department */}
             <div className="group hover:scale-[1.02] transition-transform">
               <div className="flex items-start gap-4 p-6 rounded-2xl bg-gradient-to-br from-blue-50/80 to-purple-50/80 border border-blue-100/50">
                 <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0">
@@ -54,6 +59,7 @@ export default function UserOnboarding() {
               </div>
             </div>
 
+            {/* Current Role */}
             <div className="group hover:scale-[1.02] transition-transform">
               <div className="flex items-start gap-4 p-6 rounded-2xl bg-gradient-to-br from-purple-50/80 to-pink-50/80 border border-purple-100/50">
                 <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0">
@@ -66,6 +72,7 @@ export default function UserOnboarding() {
               </div>
             </div>
 
+            {/* Email */}
             <div className="group hover:scale-[1.02] transition-transform">
               <div className="flex items-start gap-4 p-6 rounded-2xl bg-gradient-to-br from-blue-50/80 to-indigo-50/80 border border-blue-100/50">
                 <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0">
@@ -79,6 +86,7 @@ export default function UserOnboarding() {
             </div>
           </div>
 
+          {/* Continue Button */}
           <div className="flex justify-center">
             <Button
               onClick={() => navigate('/strength-discovery')}
