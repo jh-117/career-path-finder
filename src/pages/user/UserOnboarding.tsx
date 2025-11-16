@@ -9,7 +9,7 @@ export default function UserOnboarding() {
 
   if (!user) {
     return (
-      <<div className="min-h-screen flex items-center justify-center p-6 pt-20 lg:pt-6 lg:ml-[280px]">
+      <div className="min-h-screen flex items-center justify-center p-6 pt-20 lg:pt-6 lg:ml-[280px]">
         <p className="text-slate-500">Loading...</p>
       </div>
     );
