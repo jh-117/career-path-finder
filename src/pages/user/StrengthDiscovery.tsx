@@ -6,17 +6,6 @@ import FileUpload from '../../components/FileUpload';
 import { Code, Users, Target, Zap, Upload } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 
-useEffect(()z => {
-  console.log('=== Supabase Connection Test ===');
-  console.log('URL:', import.meta.env.VITE_SUPABASE_URL);
-  console.log('Key exists:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
-  
-  if (!import.meta.env.VITE_SUPABASE_URL) {
-    console.error('❌ VITE_SUPABASE_URL is missing!');
-  } else {
-    console.log('✅ Environment variables loaded');
-  }
-}, []);
 
 export default function StrengthDiscovery() {
   const navigate = useNavigate();
