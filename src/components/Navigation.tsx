@@ -4,9 +4,6 @@ import {
   ChevronLeft, 
   ChevronRight,
   Sparkles,
-  UserCircle,
-  LogIn,
-  CheckCircle,
   Target,
   BarChart3,
   Briefcase,
@@ -14,8 +11,9 @@ import {
   Shield,
   PlusCircle,
   FolderKanban,
-  Users,
-  UserCheck
+  UserCheck,
+  LogOut,
+  User
 } from 'lucide-react';
 
 export default function Navigation() {
@@ -37,9 +35,6 @@ export default function Navigation() {
   const isActive = (path: string) => location.pathname === path;
 
   const userLinks = [
-    { path: '/signup', icon: UserCircle, label: 'Sign Up' },
-    { path: '/login', icon: LogIn, label: 'Login' },
-    { path: '/onboarding', icon: CheckCircle, label: 'Onboarding' },
     { path: '/strength-discovery', icon: Target, label: 'Strength Discovery' },
     { path: '/ai-analysis', icon: BarChart3, label: 'AI Analysis' },
     { path: '/role/1', icon: Briefcase, label: 'Role Details' },
@@ -47,7 +42,6 @@ export default function Navigation() {
   ];
 
   const adminLinks = [
-    { path: '/admin/login', icon: Shield, label: 'Admin Login' },
     { path: '/admin/add-role', icon: PlusCircle, label: 'Add Role' },
     { path: '/admin/manage-roles', icon: FolderKanban, label: 'Manage Roles' },
     { path: '/admin/role/1', icon: Briefcase, label: 'Role Detail' },
@@ -57,6 +51,17 @@ export default function Navigation() {
   // Choose which links to display based on route
   const displayLinks = isAdminRoute ? adminLinks : userLinks;
   const sectionTitle = isAdminRoute ? 'Admin Portal' : 'User Portal';
+
+  // Mock user data - in real app, this would come from auth context
+  const userData = {
+    name: isAdminRoute ? 'Admin User' : 'John Doe',
+    email: isAdminRoute ? 'admin@company.com' : 'john.doe@email.com'
+  };
+
+  const handleLogout = () => {
+    // Navigate to appropriate login page
+    navigate(isAdminRoute ? '/admin/login' : '/login');
+  };
 
   return (
     <div
@@ -76,7 +81,7 @@ export default function Navigation() {
         )}
       </button>
 
-      <div className="h-full overflow-y-auto py-6 px-4">
+      <div className="h-full flex flex-col py-6 px-4">
         {/* Logo */}
         <div className={`flex items-center gap-3 mb-8 ${isCollapsed ? 'justify-center' : 'px-2'}`}>
           <div className={`w-10 h-10 rounded-2xl ${
@@ -99,7 +104,7 @@ export default function Navigation() {
         </div>
 
         {/* Navigation Section */}
-        <div>
+        <div className="flex-1 overflow-y-auto">
           {!isCollapsed && (
             <p className="text-xs uppercase tracking-wider text-slate-400 mb-3 px-2">{sectionTitle}</p>
           )}
@@ -130,6 +135,44 @@ export default function Navigation() {
               );
             })}
           </nav>
+        </div>
+
+        {/* User Profile Section at Bottom */}
+        <div className="mt-6 pt-6 border-t border-slate-200">
+          {isCollapsed ? (
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center p-3 rounded-xl transition-all hover:bg-red-50 text-slate-700 hover:text-red-700"
+              title="Logout"
+            >
+              <LogOut className="w-5 h-5" strokeWidth={1.5} />
+            </button>
+          ) : (
+            <>
+              <div className="flex items-center gap-3 px-2 mb-3">
+                <div className={`w-10 h-10 rounded-full ${
+                  isAdminRoute 
+                    ? 'bg-gradient-to-br from-indigo-100 to-purple-100' 
+                    : 'bg-gradient-to-br from-purple-100 to-blue-100'
+                } flex items-center justify-center flex-shrink-0`}>
+                  <User className={`w-5 h-5 ${
+                    isAdminRoute ? 'text-indigo-600' : 'text-purple-600'
+                  }`} strokeWidth={1.5} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-slate-900 truncate">{userData.name}</p>
+                  <p className="text-xs text-slate-500 truncate">{userData.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all hover:bg-red-50 text-slate-700 hover:text-red-700"
+              >
+                <LogOut className="w-5 h-5 flex-shrink-0" strokeWidth={1.5} />
+                <span className="text-sm">Logout</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
