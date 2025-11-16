@@ -28,7 +28,41 @@ function AppContent() {
   const hideNavRoutes = ['/signup', '/login', '/onboarding', '/admin/login'];
   const shouldShowNav = !hideNavRoutes.includes(location.pathname);
 
-export default function App() {
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-purple-50">
+      {shouldShowNav && <Navigation />}
+      <div style={{ paddingLeft: shouldShowNav ? 'var(--nav-width, 18rem)' : '0' }} className="transition-all duration-300">
+        <Routes>
+          {/* User Routes */}
+          <Route path="/" element={<Navigate to="/signup" />} />
+          <Route path="/preview_page.html" element={<Navigate to="/signup" replace />} />
+          <Route path="/signup" element={<UserSignUp setRole={setUserRole} />} />
+          <Route path="/login" element={<UserLogin setRole={setUserRole} />} />
+          <Route path="/onboarding" element={<UserOnboarding />} />
+          <Route path="/strength-discovery" element={<StrengthDiscovery />} />
+          <Route path="/ai-analysis" element={<AIAnalysis />} />
+          <Route path="/role/:id" element={<RoleDetails />} />
+          <Route path="/download-report" element={<DownloadReport />} />
+
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLogin setRole={setUserRole} />} />
+          <Route path="/admin/add-role" element={<AddRole />} />
+          <Route path="/admin/manage-roles" element={<ManageRoles />} />
+          <Route path="/admin/role/:id" element={<AdminRoleDetail />} />
+          <Route path="/admin/applicant/:id" element={<ApplicantDetail />} />
+
+          {/* Catch all - redirect to signup */}
+          <Route path="*" element={<Navigate to="/signup" replace />} />
+        </Routes>
+      </div>
+    </div>
+  );
+}
+
+
+        
+  export default function App() {
   return (
     <AuthProvider>
       <Router>
