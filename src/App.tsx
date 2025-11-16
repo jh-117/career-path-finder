@@ -28,8 +28,12 @@ function AppContent() {
     <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-purple-50">
       {shouldShowNav && <Navigation />}
 
-      <div className={shouldShowNav ? 'lg:ml-[280px] transition-all duration-300' : ''}>
-        <Routes>
+      <div
+        className={shouldShowNav ? 'transition-all duration-300' : ''}
+        style={shouldShowNav ? { marginLeft: 'var(--nav-width, 18rem)' } : {}}
+      >
+        <div className={shouldShowNav ? 'p-8 max-w-7xl mx-auto' : ''}>
+          <Routes>
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/preview_page.html" element={<Navigate to="/login" replace />} />
               <Route path="/signup" element={<UserSignUp />} />
@@ -111,9 +115,10 @@ function AppContent() {
               />
 
               <Route path="*" element={<Navigate to="/login" replace />} />
-            </Routes>
-          </div>
+          </Routes>
         </div>
+      </div>
+    </div>
   );
 }
 
